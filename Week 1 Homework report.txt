@@ -1,0 +1,31 @@
+In order to carry out this task, we deployed the HelloWorld.sol contract to Sepolia test net. The contract was successfully deployed to testnet in this transaction:
+https://sepolia.etherscan.io/tx/0xb2f7692f943143e7ee38102c2c404b23973429c8692ddd3dd1ed5ff3157ad195
+
+From this page, notice we created the new contract at the following address:
+0xe1ac38fe99f3b86fb07c26c90ae8d3a243a4b164
+
+The original EOA / wallet address that interacted with the contract was:
+0x87C924C1c720AFa2e1c287fE48E822e74c7df2A1
+
+To do this, one of our group members had to:
+Create a new account in Metamask and connect to Sepolia testnet as well as get some sepolia test eth to cover gas fees. 
+
+In the next step, we called the setText function for this deployed contract in Remix. We did this in the following transaction:
+https://sepolia.etherscan.io/tx/0x2458931f3d55f74b21174ced524388b7f349db64884190a1ea6228a8b91d9ee2
+
+Following this we called the transferOwnership function and changed the ownership of the contract to another member of the group. We had to do this because looking at the contract code, it uses an onlyOwner modifier that forces the function caller to be the owner in order to successfully call the transferOwnership function. Once ownership is transferred, the new owner was able to call the setText function and the original owner was not able to call setText anymore.
+
+Continuing with the assignment, we transferred ownership of the original contract to a new address via this transaction: https://sepolia.etherscan.io/tx/0x8616b89c43312d542e84c0efc1f4c8d63279b9946c9d927912c795505ded2140
+
+Now when the original owner calls setText, they get the expected error 'Caller is not the owner':
+https://sepolia.etherscan.io/tx/0xc984846cc401f0aecdeeea498915afd3f124dd880f8b42e7fe075918ba4c6262
+
+The new contract owner was able to call setText then via this transaction:
+https://sepolia.etherscan.io/tx/0xa604bcdb68dcba5fb0e927052844c0a5adb6765f8cfd0c299f4973338d9097ac
+
+We again transferred ownership to a new group members EOA account via this transaction:
+https://sepolia.etherscan.io/tx/0x0d5579bf446b3cda4ba0ed01f18a1e64362602af9394424854525f97e33bbd21
+
+And the previous contract owner got the expected error again 'Caller is not the owner': https://sepolia.etherscan.io/tx/0x0613aabae52c54b0f406881e772fef0ce95db518dc247c89912da5f79df8a175
+
+Finally, they could see that they were in fact the new owner and were able to change the text again: https://sepolia.etherscan.io/tx/0xe99a83282f964c0f9d92aed48646bed7e8ba7a36ca62e2b6e71d86daf8671254
