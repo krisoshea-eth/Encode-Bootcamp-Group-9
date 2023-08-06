@@ -41,6 +41,12 @@ Example:
 Example:
 ```npx ts-node ./scripts/Vote.ts 0x23Da7Faedf03137d6b16C56fb9DAf4bA84776790 0 ```
 
+## Delegate Vote
+```npx ts-node ./scripts/DelegateVote.ts <contract address> <address of delagate>```
+
+Example:
+```npx ts-node ./scripts/Vote.ts 0x23Da7Faedf03137d6b16C56fb9DAf4bA84776790 0x9Ec31FF4CA2fBCe8Dd89e3DFA60B8052C782F361 ```
+
 ## Get Winner Name
 
 ```
