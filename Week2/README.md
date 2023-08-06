@@ -41,7 +41,21 @@ Example:
 Example:
 ```npx ts-node ./scripts/Vote.ts 0x23Da7Faedf03137d6b16C56fb9DAf4bA84776790 0 ```
 
-# Example Deployed Contract
+## Get Winner Name
+
+```
+npx ts-node ./scripts/GetWinnerName.ts <contract address>
+```
+
+Example:
+```
+npx ts-node ./scripts/GetWinnerName.ts 0x23Da7Faedf03137d6b16C56fb9DAf4bA84776790
+Using address 0x87C924C1c720AFa2e1c287fE48E822e74c7df2A1
+Wallet balance 1.4936607009556941
+Winner: Chocolate
+```
+
+# Example Deployed Contract with Transactions
 
 https://sepolia.etherscan.io/address/0x23da7faedf03137d6b16c56fb9daf4ba84776790
 
