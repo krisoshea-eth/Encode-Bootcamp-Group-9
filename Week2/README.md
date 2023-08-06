@@ -35,6 +35,11 @@ Only the deployer of the contract (the chairperson) is able to give voting right
 Example:
 ```npx ts-node ./scripts/GiveRightToVote.ts 0x23Da7Faedf03137d6b16C56fb9DAf4bA84776790 0x6D8Eb771F6503fd4db08E2879f582e6030c9B877```
 
+An example of what would happen if anyone other than the deployer(chairperson) tries to assign voting rights:
+<img width="963" alt="voteDelegation" src="https://github.com/krisoshea-eth/Encode-Bootcamp-Group-9/assets/85358998/aa99d328-e86b-4502-a42b-6505c7ca1634">
+
+
+
 ## Vote for a Proposal
 ```npx ts-node ./scripts/Vote.ts <contract address> <proposal index>```
 
