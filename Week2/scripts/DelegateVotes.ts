@@ -10,7 +10,7 @@ async function main() {
 
   const provider = new ethers.JsonRpcProvider(process.env.RPC_ENDPOINT_URL ?? "");
 
-  const wallet = ethers.Wallet.fromPhrase(process.env.MNEMONIC ?? "", provider); 
+  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY ?? "", provider);
 
   // Verify Wallet
   console.log(`Using address ${wallet.address}`);
