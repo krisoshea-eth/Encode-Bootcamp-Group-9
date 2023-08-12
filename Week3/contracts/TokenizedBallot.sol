@@ -17,12 +17,10 @@ contract TokenizedBallot {
         uint voteCount; // number of accumulated votes
     }
 
-    address public chairperson;
-
     // A dynamically-sized array of `Proposal` structs.
     Proposal[] public proposals;
 
-    uint256 targetBlockNumber;
+    uint256 public targetBlockNumber;
 
     /// Create a new ballot to choose one of `proposalNames`.
     constructor(bytes32[] memory proposalNames, address _tokenContract, uint256 _targetBlockNumber) {
