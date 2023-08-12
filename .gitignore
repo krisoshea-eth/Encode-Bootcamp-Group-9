@@ -2,4 +2,5 @@ Week3/artifacts/
 Week3/cache/
 Week3/node_modules/
 .env
+.DS_Store
 Week3/typechain-types/
