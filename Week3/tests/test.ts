@@ -31,9 +31,6 @@ describe("Tokenized Ballot Tests", async () => {
     const MyERC20Contract_ = await MyERC20ContractFactory.deploy();
     await MyERC20Contract_.waitForDeployment();
 
-    
-    // console.log({lastBlock});
-
     // Mint a supply to accounts
     let tokenValue = ethers.parseUnits("1", "ether");
     let minttx = await MyERC20Contract_.mint(acct1, tokenValue);
@@ -47,7 +44,7 @@ describe("Tokenized Ballot Tests", async () => {
     minttx = await MyERC20Contract_.mint(acct3, tokenValue);
     await minttx.wait();
 
-
+    // Self Delegate to activate voting rights
     let selfDelegate = await MyERC20Contract_.connect(acct1).delegate(acct1.getAddress());
     await selfDelegate.wait();
 
@@ -80,57 +77,42 @@ describe("Tokenized Ballot Tests", async () => {
     BallotContract = BallotContract_;
   });
 
-  // it("should have 100 total supply at deployment", async () => {
+  it("should have 3 ETH total supply after minting", async () => {
+    const totalSupplyBigNumber = await MyERC20Contract.totalSupply();
+    const expectedTokenValue = ethers.parseUnits("3", "ether");
+    expect(totalSupplyBigNumber).to.eq(expectedTokenValue);
+  });
 
-  //   const totalSupplyBigNumber = await MyERC20Contract.totalSupply();
+  it("can delegate", async () => {
+    // Acct1 delegates all voting power to acct2
+    const delegateTxn = await MyERC20Contract.connect(acct1).delegate(acct2.getAddress());
+    await delegateTxn.wait();
 
-  //   console.log('totalSupplyBigNumber = ', totalSupplyBigNumber);
+    // Verify acct1 continues to have 1 eth
+    const acct1BalanceBN = await MyERC20Contract.balanceOf(acct1.getAddress());
+    const expectedBalance1 = ethers.parseUnits("1", "ether");
+    expect(acct1BalanceBN).to.eq(expectedBalance1);
 
-  //   const decimals = await MyERC20Contract.decimals();
+    // Verify acct2 continues to have 1 eth
+    const acct2BalanceBN = await MyERC20Contract.balanceOf(acct2.getAddress());
+    const expectedBalance2 = ethers.parseUnits("1", "ether");
+    expect(acct2BalanceBN).to.eq(expectedBalance2);
 
-  //   console.log('decimals = ', decimals);
+    // Verify acct1 has no voting power
+    const acct1Votes = await MyERC20Contract.getVotes(acct1.getAddress());
+    expect(acct1Votes).to.eq(0n);
 
-  //   const totalSupply = ethers.formatUnits(totalSupplyBigNumber, decimals);
+    // Self delegate acct2 to update voting rights
+    const selfDelegate = await MyERC20Contract.connect(acct2).delegate(acct2.getAddress());
+    await selfDelegate.wait();
 
-  //   console.log('Total Supply = ', totalSupply);
-
-  //   const expectedTokenValue = ethers.parseUnits("3", "ether");
-  //   expect(totalSupplyBigNumber).to.eq(expectedTokenValue);
-  // });
-
-  // it("can delegate", async () => {
-  //   const delegateTxn = await MyERC20Contract.connect(acct1).delegate(acct2.getAddress());
-  //   await delegateTxn.wait();
-
-  //   const acct1BalanceBN = await MyERC20Contract.balanceOf(acct1.getAddress());
-  //   const expectedBalance1 = ethers.parseUnits("1", "ether");
-  //   expect(acct1BalanceBN).to.eq(expectedBalance1);
-
-  //   const acct2BalanceBN = await MyERC20Contract.balanceOf(acct2.getAddress());
-  //   const expectedBalance2 = ethers.parseUnits("1", "ether");
-  //   expect(acct2BalanceBN).to.eq(expectedBalance2);
-
-  //   const acct1Votes = await MyERC20Contract.getVotes(acct1.getAddress());
-  //   expect(acct1Votes).to.eq(0n);
-
-  //   const selfDelegate = await MyERC20Contract.connect(acct2).delegate(acct2.getAddress());
-  //   await selfDelegate.wait();
-
-  //   const acct2Votes = await MyERC20Contract.getVotes(acct2.getAddress());
-  //   const expectedVotesAcct2 = ethers.parseUnits("2", "ether");
-  //   expect(acct2Votes).to.eq(expectedVotesAcct2);
-  // });
+    // Verify acct2 has 2 eth voting power
+    const acct2Votes = await MyERC20Contract.getVotes(acct2.getAddress());
+    const expectedVotesAcct2 = ethers.parseUnits("2", "ether");
+    expect(acct2Votes).to.eq(expectedVotesAcct2);
+  });
 
   it("Use Tokenized Ballot", async function() {
-    // let selfDelegate = await MyERC20Contract.connect(acct1).delegate(acct1.getAddress());
-    // await selfDelegate.wait();
-
-    // selfDelegate = await MyERC20Contract.connect(acct2).delegate(acct2.getAddress());
-    // await selfDelegate.wait();
-
-    // selfDelegate = await MyERC20Contract.connect(acct3).delegate(acct3.getAddress());
-    // await selfDelegate.wait();
-
     const acct1VoteAmt = ethers.parseUnits("1", "ether");
     const acct1Vote = await BallotContract.connect(acct1).vote(4, acct1VoteAmt);
     acct1Vote.wait();
@@ -143,9 +125,8 @@ describe("Tokenized Ballot Tests", async () => {
     const acct3Vote = await BallotContract.connect(acct3).vote(4, acct3VoteAmt);
     acct3Vote.wait();
 
+    // Expect proposal 4 to win
     const winningProposal = await BallotContract.winningProposal();
-    // why isn't this a transaction??
-    
     expect(winningProposal).to.eq(4);
   });
 });
