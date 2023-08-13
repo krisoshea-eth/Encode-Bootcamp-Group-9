@@ -5,7 +5,7 @@ dotenv.config();
 
 //To run:
 // npx hardhat run ./scripts/winningProposal.ts <tokenizedBallot contract address>
-// npx hardhat run ./scripts/winningProposal.ts 0x8B55ae7604EBf49b83952411d94Ed477C94dc40D
+// npx hardhat run ./scripts/winningProposal.ts 0x602727c195DB6E0F6bf7fd06645e91a1602a9FbD
 async function main(){
     const parameter = process.argv.slice(2);
     const ballotContractAddress = parameter[0];
