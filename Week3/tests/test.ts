@@ -4,8 +4,6 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers"
 import { MyToken, TokenizedBallot } from "../typechain-types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
-const SUPPLY = 1_000_000;
-
 const PROPOSAL_NAMES = [
   "Chocolate",            // 0
   "Mint Chocolate Chip",  // 1
