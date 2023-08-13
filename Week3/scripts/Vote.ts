@@ -1,5 +1,5 @@
 import { ethers } from "hardhat";
-import { TokenizedBallot, MyToken, TokenizedBallot__factory} from "../typechain-types";
+import { TokenizedBallot, MyToken, TokenizedBallot__factory, MyToken__factory } from "../typechain-types";
 import * as dotenv from 'dotenv';
 dotenv.config();
 /**
@@ -10,17 +10,28 @@ dotenv.config();
  */
 
 //To run:
-// npx hardhat run ./scripts/Vote.ts <ballotContractAddress> <proposal> <amount>
-// npx hardhat run ./scripts/Vote.ts 0x8B55ae7604EBf49b83952411d94Ed477C94dc40D 4 1
+// npx hardhat run ./scripts/Vote.ts <tokenContract address> <ballotContractAddress> <proposal>
+// npx hardhat run ./scripts/Vote.ts 0xE15A6FaD4cEE67269A9A7c054482Ba99c383BD5b 0x8B55ae7604EBf49b83952411d94Ed477C94dc40D 4 1
 async function main() {
     const parameter = process.argv.slice(2);
-    const ballotContractAddress = parameter[0];
-    const proposal = parameter[1];
-    const _amount = parameter[2];
+    const tokenContractAddress = parameter[0];
+    const ballotContractAddress = parameter[1];
+    const proposal = parameter[2];
+    const _amount = parameter[3];
 
     //connecting Wallet
     const provider = new ethers.JsonRpcProvider(process.env.RPC_ENDPOINT_URL ?? "");
     const wallet = ethers.Wallet.fromPhrase(process.env.MNEMONIC ?? "", provider); 
+
+        //tokenCOntract 
+    const tokenFactory = new MyToken__factory(wallet);
+    const tokenContract = tokenFactory.attach(tokenContractAddress) as MyToken;
+
+    // Check voting power
+    const walletAddress = wallet.address;
+    const votingPower = await tokenContract.getVotes(walletAddress); 
+    console.log(`Using wallet address ${walletAddress} which has ${votingPower} units of voting`);
+       
 
     const tokenBallotFactory = new TokenizedBallot__factory(wallet);
     const ballotContract = tokenBallotFactory.attach(ballotContractAddress) as TokenizedBallot;
