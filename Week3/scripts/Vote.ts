@@ -23,14 +23,23 @@ async function main() {
     const provider = new ethers.JsonRpcProvider(process.env.RPC_ENDPOINT_URL ?? "");
     const wallet = ethers.Wallet.fromPhrase(process.env.MNEMONIC ?? "", provider); 
 
-        //tokenCOntract 
+    //tokenCOntract 
     const tokenFactory = new MyToken__factory(wallet);
     const tokenContract = tokenFactory.attach(tokenContractAddress) as MyToken;
+
+    //checking token balance
+    const walletBN = await tokenContract.balanceOf(wallet.getAddress());
+    const walletTokens = ethers.parseUnits("1", "ether");
+    console.log(`Wallet token balance is ${walletTokens}`);
 
     // Check voting power
     const walletAddress = wallet.address;
     const votingPower = await tokenContract.getVotes(walletAddress); 
     console.log(`Using wallet address ${walletAddress} which has ${votingPower} units of voting`);
+
+    if (votingPower < 0.01) {
+        throw new Error("No voting power");
+      }
        
 
     const tokenBallotFactory = new TokenizedBallot__factory(wallet);
