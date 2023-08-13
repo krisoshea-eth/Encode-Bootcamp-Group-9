@@ -10,18 +10,21 @@ dotenv.config();
  */
 
 //To run:
-// npx hardhat run ./scripts/Vote.ts <tokenContract address> <ballotContractAddress> <proposal>
-// npx hardhat run ./scripts/Vote.ts 0xE15A6FaD4cEE67269A9A7c054482Ba99c383BD5b 0x8B55ae7604EBf49b83952411d94Ed477C94dc40D 4 1
+// npx hardhat run ./scripts/Vote.ts <proposal> <voting amount>
+// npx hardhat run ./scripts/Vote.ts 4 1
 async function main() {
     const parameter = process.argv.slice(2);
-    const tokenContractAddress = parameter[0];
-    const ballotContractAddress = parameter[1];
-    const proposal = parameter[2];
-    const _amount = parameter[3];
+    const proposal = parameter[0];
+    const _amount = parameter[1];
+
+    const tokenContractAddress = "0xE15A6FaD4cEE67269A9A7c054482Ba99c383BD5b";
+    const ballotContractAddress = "0x8B55ae7604EBf49b83952411d94Ed477C94dc40D";
+    
 
     //connecting Wallet
     const provider = new ethers.JsonRpcProvider(process.env.RPC_ENDPOINT_URL ?? "");
-    const wallet = ethers.Wallet.fromPhrase(process.env.MNEMONIC ?? "", provider); 
+    //const wallet = ethers.Wallet.fromPhrase(process.env.MNEMONIC ?? "", provider); 
+    const wallet = new ethers.Wallet(process.env.PRIVATE_KEY ?? "", provider);
 
     //tokenCOntract 
     const tokenFactory = new MyToken__factory(wallet);
@@ -29,8 +32,10 @@ async function main() {
 
     //checking token balance
     const walletBN = await tokenContract.balanceOf(wallet.getAddress());
-    const walletTokens = ethers.parseUnits("1", "ether");
-    console.log(`Wallet token balance is ${walletTokens}`);
+    // ethers.parseUnits(walletBN, "ether");
+    const decimals = await tokenContract.decimals();
+    const walletTokens = ethers.formatUnits(walletBN, decimals)
+    console.log(`Wallet token balance is ${walletTokens} tokens`);
 
     // Check voting power
     const walletAddress = wallet.address;
