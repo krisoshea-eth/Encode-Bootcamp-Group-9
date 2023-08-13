@@ -18,7 +18,7 @@ async function main() {
     const _amount = parameter[1];
 
     const tokenContractAddress = "0xE15A6FaD4cEE67269A9A7c054482Ba99c383BD5b";
-    const ballotContractAddress = "0x8B55ae7604EBf49b83952411d94Ed477C94dc40D";
+    const ballotContractAddress = "0x602727c195DB6E0F6bf7fd06645e91a1602a9FbD";
     
 
     //connecting Wallet
