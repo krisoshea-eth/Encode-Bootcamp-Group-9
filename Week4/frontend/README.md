@@ -1,14 +1,38 @@
 # Setup
 
+For Frontend, create a `./frontend/.env.local` file like this:
+```
+ALCHEMY_API_KEY= # Fill in your key (though I could not get Alchemy to work)
+ALCHEMY_NETWORK=ETH_GOERLI
+NEXT_PUBLIC_ALCHEMY_NETWORK=ETH_GOERLI
+NEXT_PUBLIC_DEFAULT_CHAIN=goerli
+INFURA_API_KEY= # Fill in your key
+```
 
+For Backend, create a `./project-name/.env` file like this:
+```
+# Sharable private key, so team can 
+PRIVATE_KEY="4990e3e661ae5c64ca4819d2961f3f98dc58fc801ad34a906ffaa61361b06335"
 
-In one CLI terminal:
+# This is where the private key deploy the ERC20Votes Contract on Sepolia
+ERC20_CONTRACT_ADDRESS="0xb78ea56431102C43BEa7cD373C986ce2145282f3"
+
+# Fill in your key. This has been working with Alchemy
+INFURA_API_KEY="********************************"
+INFURA_API_SECRET="********************************"
+ALCHEMY_API_KEY="********************************"
+ETHERSCAN_API_KEY="********************************"
+
+RPC_ENDPOINT_URL="" # Fill in your RPC URL
+```
+
+In one CLI terminal, run the frontend:
 ```
 cd frontend
 npm run dev
 ```
 
-In a second CLI terminal:
+In a second CLI terminal, run the backend:
 ```
 cd project-name
 npm run start:dev

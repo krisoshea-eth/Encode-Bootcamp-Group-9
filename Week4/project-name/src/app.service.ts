@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ethers } from 'ethers';
-import * as TokenJson from './assets/MyToken.json';
+import * as ERC20VotesJson from './assets/ERC20Votes.json';
 import { MintResponse } from './dtos/minttoken.dto';
 
 @Injectable()
@@ -12,7 +12,7 @@ export class AppService {
   constructor() {
     this.provider = new ethers.JsonRpcProvider(process.env.RPC_ENDPOINT_URL ?? '');
     this.wallet = new ethers.Wallet(process.env.PRIVATE_KEY ?? '', this.provider);
-    this.contract = new ethers.Contract(process.env.ERC20_CONTRACT_ADDRESS, TokenJson.abi, this.wallet);
+    this.contract = new ethers.Contract(process.env.ERC20_CONTRACT_ADDRESS, ERC20VotesJson.abi, this.wallet);
   }
 
   getHello(): string {
