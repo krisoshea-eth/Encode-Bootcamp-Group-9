@@ -5,12 +5,24 @@ import {
   useBalance,
   useSignMessage,
   useContractRead,
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
 } from "wagmi";
+
+import {
+  ethers,
+  utils,
+} from "ethers";
+
 import * as ERC20Votes from "../../assets/ERC20Votes.json";
+import * as TokenizedBallot from "../../assets/TokenizedBallot.json";
 
 import styles from "./instructionsComponent.module.css";
 
-const ERC20_CONTRACT_ADDRESS="0xb78ea56431102C43BEa7cD373C986ce2145282f3"
+const ERC20_CONTRACT_ADDRESS="0xb78ea56431102C43BEa7cD373C986ce2145282f3";
+
+const TOKENIZED_BALLOT_ADDRESS="0x868df35d41A82De3D9d4c0014d11Af1df4CEe880";
 
 export default function InstructionsComponent() {
   return (
@@ -28,7 +40,6 @@ export default function InstructionsComponent() {
 }
 
 function PageBody() {
-  try {
     return (
       <div>
         <h2>Wallet Info</h2>
@@ -41,11 +52,16 @@ function PageBody() {
         <GetTotalSupplyFE />
         <h2>Mint Tokens (from backend)</h2>
         <MintTokens />
+        <h2>Delegate</h2>
+        <Delegate/>
+        <h2>Voting Power</h2>
+        <GetVotingPower/>
+        <h2>Vote</h2>
+        <Vote/>
+        <h2>Get the Winner</h2>
+        <GetWinner/>
       </div>
     );
-  } catch (e) {
-    console.log('ERROR', e)
-  }
 }
 
 function WalletInfo() {
@@ -278,4 +294,129 @@ function MintTokens() {
       <p>Transaction Hash: {data.transactionHash}</p>
     </div>
   )
+}
+
+function Delegate() {
+  const [address, setAddress] = useState<string>('');
+
+  const { config } = usePrepareContractWrite({
+    address: ERC20_CONTRACT_ADDRESS,
+    abi: ERC20Votes.abi,
+    functionName: 'delegate',
+    args: [address],
+  })
+
+  const { data, write } = useContractWrite(config);
+ 
+  const { isLoading, isSuccess } = useWaitForTransaction({
+    hash: data?.hash,
+  });
+
+  return (
+    <div>
+      Address: <input type="text" onChange={(e) => setAddress(e.target.value)}></input>
+      <button disabled={isLoading} onClick={() => write?.()}>
+        Delegate
+      </button>
+      {
+        isLoading && <p>Delegating...</p>
+      }
+      {isSuccess && (
+        <div>
+          <p>Successfully delegated</p>
+          <p>{`Transaction Hash: ${data?.hash}`}</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function GetVotingPower() {
+  const { address } = useAccount();
+
+    const { data, isError, isLoading } = useContractRead({
+      address: TOKENIZED_BALLOT_ADDRESS,
+      abi: TokenizedBallot.abi,
+      functionName: 'votingPower',
+      args: [address],
+      onError(error){
+        console.log(error)
+    }
+    });
+
+    if (isLoading) return <p>Loading...</p>;
+    if (isError) return <p>Error fetching voting power</p>;
+
+    console.log('voting power 2', data);
+
+    const votingPower = (data as BigInt).toString(); 
+
+    return (
+      <div>
+        <p>Your voting Power: {votingPower}</p>
+      </div>
+    );
+}
+
+function Vote() {
+  const [proposal, setProposal] = useState<string>('');
+  const [amount, setAmount] = useState<string>('');
+
+  const { config } = usePrepareContractWrite({
+    address: TOKENIZED_BALLOT_ADDRESS,
+    abi: TokenizedBallot.abi,
+    functionName: 'vote',
+    args: [proposal, amount],
+    onError(error){
+      console.log(error)
+    }
+  });
+
+  const { data, write } = useContractWrite(config);
+ 
+  const { isLoading, isSuccess } = useWaitForTransaction({
+    hash: data?.hash,
+  });
+
+  return (
+    <div>
+      <p>Proposal Number: <input type="text" onChange={(e) => setProposal(e.target.value)}></input></p>
+      <p>Amount: <input type="text" onChange={(e) => setAmount(e.target.value)}></input></p>
+      <button disabled={isLoading} onClick={() => write?.()}>
+        Vote
+      </button>
+      {
+        isLoading && <p>Voting...</p>
+      }
+      {isSuccess && (
+        <div>
+          <p>Successfully voted</p>
+          <p>{`Transaction Hash: ${data?.hash}`}</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function GetWinner() {
+  const { data, isError, isLoading } = useContractRead({
+    address: TOKENIZED_BALLOT_ADDRESS,
+    abi: TokenizedBallot.abi,
+    functionName: 'winnerName',
+    onError(error){
+      console.log(error)
+    }
+  });
+
+  if (isLoading) return <p>Loading...</p>;
+  if (isError) return <p>Error fetching winner</p>;
+
+  const winnerBytes = data as string;
+  const winner = utils.parseBytes32String(data as utils.BytesLike);
+
+  return (
+    <div>
+      <p>And the winner is... {winner}!</p>
+    </div>
+  );
 }
