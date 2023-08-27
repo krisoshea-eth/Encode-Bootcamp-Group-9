@@ -22,8 +22,8 @@ Tx-hash: 0xb8a35872cc8fd059a668c43a896993015ee50db793e8e527885b2c421162a972
 link:
 
 ### A few changes made to Lottery contract
-Added function to obtain winner address
-Tweaked openBets function: only input is duration, then closing time is calculated within function
+- Added function to obtain winner address
+- Tweaked openBets function: only input is duration, then closing time is calculated within function
 
 ### To do 
 - deploy lottery contract and get address ✅
