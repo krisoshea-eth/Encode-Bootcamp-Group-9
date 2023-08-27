@@ -20,3 +20,20 @@ tx-hash:
 ## Purchasing tokens
 Tx-hash: 0xb8a35872cc8fd059a668c43a896993015ee50db793e8e527885b2c421162a972
 link:
+
+### A few changes made to Lottery contract
+Added function to obtain winner address
+Tweaked openBets function: only input is duration, then closing time is calculated within function
+
+### To do 
+- deploy lottery contract and get address ✅
+- check state functionality ✅ (might require some tweaking)
+- top up tokens to own address ✅
+    - need to re-deploy contract and change ratio/price/betting fees
+    - currently ratio is 1 i.e. 1 Sepolia= 1 LTO
+- burn tokens to own address
+- withdraw fees - owner (needs testing)
+- open bets ✅
+- bet (needs testing)
+- check prize
+- display owner pool
