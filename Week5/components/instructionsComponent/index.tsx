@@ -33,6 +33,8 @@ function PageBody(){
             <StartLottery></StartLottery>
             <CloseLottery></CloseLottery>
             <TopUpTokens></TopUpTokens>
+            <Bet></Bet>
+            <WithdrawFees></WithdrawFees>
         </div>
     )
 }
@@ -77,7 +79,7 @@ function StartLottery(){
       )
 }
 
-//NEED TO FIX
+//NEED TO FIX to link button to logic
 function CloseLottery(){
     //TO DO - end lottery
     //anyone, so should not have error
@@ -166,7 +168,7 @@ function TopUpTokens(){
             
           <p>How many tokens to buy? <input type="text" onChange={(e) => {
             const val = e.target.value;
-            //need to convert to wei
+            //need to convert to wei?
             setAmount(BigInt(val))
             }
             }></input></p>
@@ -186,18 +188,94 @@ function TopUpTokens(){
       )
 }
 
+//TO DO - test
 function Bet(){
     //TO DO - bet with account
+    const [betAmount, setBetAmount] = useState<string>('');
+
+    const {config} = usePrepareContractWrite({
+        address: LOTTERY_ADDRESS,
+        abi: Lottery.abi,
+        functionName: "betMany",
+        args: [betAmount],
+        onError(error){
+            console.log(error)
+        }
+    })
+
+    const { data, write } = useContractWrite(config);
+   
+    const { isLoading, isSuccess } = useWaitForTransaction({
+      hash: data?.hash,
+    });
+
+    return (
+        <div>
+          <p>Bet amount?: <input type="text" onChange={(e) => setBetAmount(e.target.value)}></input></p>
+          <button disabled={isLoading} onClick={() => write?.()}>
+            Place Bet
+          </button>
+          {
+            isLoading && <p>Betting...</p>
+          }
+          {isSuccess && (
+            <div>
+              <p>Successfully placed bet</p>
+              <p>{`Transaction Hash: ${data?.hash}`}</p>
+            </div>
+          )}
+        </div>
+      )
 }
 
+//TO DO - test
 function WithdrawFees(){
     //TO DO - only owner withdraws fees
     //graceful error if not owner
     //only call if using owner address?
+    const [amount, setAmount] = useState<bigint>();
+
+    const {config} = usePrepareContractWrite({
+        address: LOTTERY_ADDRESS,
+        abi: Lottery.abi,
+        functionName: "ownerWithdraw",
+        args: [amount],
+        onError(error){
+            console.log(error)
+        }
+    })
+
+    const { data, write } = useContractWrite(config);
+   
+    const { isLoading, isSuccess } = useWaitForTransaction({
+      hash: data?.hash,
+    });
+
+    return (
+        <div>
+          <p>Amount of lottery fees to withdraw: <input type="text" onChange={(e) => setAmount(BigInt(e.target.value))}></input></p>
+          <button disabled={isLoading} onClick={() => write?.()}>
+            Withdraw 
+          </button>
+          {
+            isLoading && <p>Withdrawing...</p>
+          }
+          {isSuccess && (
+            <div>
+              <p>Successfully withdrew funds</p>
+              <p>{`Transaction Hash: ${data?.hash}`}</p>
+            </div>
+          )}
+        </div>
+      )
+}
+
+function displayOwnerPool(){
+
 }
 
 function CheckPrize(){
-    //TO DO - checks if current address has won
+    //TO DO - check if current address has won
     //Checks tokens. Token increase?
 }
 
