@@ -1,4 +1,5 @@
 # Lottery dApp
+<img width="908" alt="Screenshot 2023-08-29 at 12 41 00 PM" src="https://github.com/krisoshea-eth/Encode-Bootcamp-Group-9/assets/30440525/3e54536d-5ce6-4bb7-8ca3-7a7558bc553e">
 
 ## Lottery contract deployment
 Script to deploy here
