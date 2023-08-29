@@ -26,5 +26,8 @@
     "typescript": "5.1.3",
     "viem": "^0.3.50",
     "wagmi": "^1.0.9"
+  },
+  "devDependencies": {
+    "use-debounce": "^9.0.4"
   }
 }

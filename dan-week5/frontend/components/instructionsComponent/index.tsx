@@ -15,6 +15,8 @@ import {
   ethers,
 } from "ethers";
 
+import { useDebounce } from 'use-debounce'
+
 import * as Lottery from "../../assets/abi/Lottery.json";
 import * as LotteryToken from "../../assets/abi/LotteryToken.json";
 
@@ -35,8 +37,8 @@ export default function InstructionsComponent() {
         </div>
       </header>
       <div>
+        <h3>Lottery State</h3>
         <CheckState />
-        <h3>Open Bets</h3>
         <OpenBets />
         <CloseLottery />
         <TokenBalance />
@@ -109,8 +111,10 @@ function OpenBets() {
 
   return (
     <div>
-      <p>Enter number of seconds to open bets for: <input type="text" value={seconds} onChange={onChangeDuration}/></p>
-      <button onClick={() => write?.()}>Open Bets</button>
+      <p>
+        Number of seconds to keep open: <input type="text" value={seconds} onChange={onChangeDuration}/>
+        <button onClick={() => write?.()}>Open Lottery</button>
+      </p>
     </div>
   )
 }
@@ -137,24 +141,37 @@ function BuyTokens() {
 }
 
 function CloseLottery() {
-  const { config } = usePrepareContractWrite({
+
+  const {
+    config,
+    error: prepareError,
+    // this throws a isPrepareError if the lottery is already closed because
+    // isError: isPrepareError,
+  } = usePrepareContractWrite({
     address: LOTTERY_CONTRACT_ADDRESS,
     abi: Lottery.abi,
     functionName: 'closeLottery',
-    args: [],
-  })
+    enabled: false,
+  });
 
-  const { data, write } = useContractWrite(config);
+  const { data, error, isError, write } = useContractWrite(config);
  
   const { isLoading, isSuccess } = useWaitForTransaction({
     hash: data?.hash,
   });
 
+  const handleOnClick = (e: any) => {
+    e.preventDefault();
+    write?.();
+  }
+
   return (
     <div>
-      <button onClick={() => write?.()}>Close Lottery</button>
+      <button onClick={handleOnClick} disabled={isLoading}>Close Lottery</button>
       { isLoading && <p>Waiting for transaction to complete...</p> }
       { isSuccess && <p>Transaction complete. Hash: {data?.hash}</p> }
+      {/*(isPrepareError || isError) && (<p>Error: {(prepareError || error)?.message}</p>)*/}
+      {isError && (<p>Error: {(prepareError || error)?.message}</p>)}
     </div>
   );
 }
@@ -215,6 +232,8 @@ function Approve() {
   );
 }
 
+// Ideally, we'd ask the use to approve the contract to spend their tokens
+// automatically as part of the bet step, if they haven't already approved it.
 function Bet() {
   const [amount, setAmount] = useState<string>('0');
 
@@ -243,7 +262,7 @@ function Bet() {
 function CheckPrize() {
   const { address } = useAccount();
 
-  const [ prize, setPrize ] = useState<BigInt>();
+  const [ prize, setPrize ] = useState<ethers.BigNumber>();
 
   let { data, isError, isLoading, refetch } = useContractRead({
     address: LOTTERY_CONTRACT_ADDRESS,
@@ -254,7 +273,7 @@ function CheckPrize() {
       console.log('betsOpen error: ', error)
     },
     onSuccess(data) {
-      setPrize(data as BigInt);
+      setPrize(data as ethers.BigNumber);
     }
   });
 
@@ -274,7 +293,7 @@ function CheckPrize() {
 
   return (
     <p>
-      <span>Prize: {prize?.toString()} </span>
+      <span>Prize: {ethers.utils.formatUnits(prize ?? 0)} LT0 </span>
       <button onClick={() => refetch()} disabled={isLoading}>Refresh</button>
     </p>
   );
@@ -282,12 +301,25 @@ function CheckPrize() {
 
 function ClaimPrize() {
   const [amount, setAmount] = useState<string>('0');
+  const [ debouncedAmount, _] = useDebounce(amount, 100);
 
-  const { data, isLoading, isSuccess, write } = useContractWrite({
+  const {
+    config,
+    error: prepareError,
+    isError: isPrepareError,
+  } = usePrepareContractWrite({
     address: LOTTERY_CONTRACT_ADDRESS,
     abi: Lottery.abi,
     functionName: 'ownerWithdraw',
+    args: [ethers.utils.parseEther(debouncedAmount).toBigInt()],
+    enabled: Boolean(debouncedAmount),
   });
+
+  const { data, error, isError, write } = useContractWrite(config)
+ 
+  const { isLoading, isSuccess } = useWaitForTransaction({
+    hash: data?.hash,
+  })
 
   if (isLoading) {
     return <p>Waiting for transaction to complete...</p>
@@ -296,15 +328,15 @@ function ClaimPrize() {
   return (
     <div>
       <h3>Withdraw Your Prize</h3>
-      <p>Amount: <input type="text" value={amount} onChange={(e) => setAmount(e.target.value)}/></p>
-      <button onClick={() => write?.({args: [ethers.utils.parseUnits(amount)]})} disabled={isLoading}>Claim</button>
+      <p>Amount: <input type="text" value={amount} onChange={(e) => setAmount(e.target.value)}/> LT0</p>
+      <button onClick={() => write?.()} disabled={isLoading}>Claim</button>
       { isSuccess && <p>Transaction complete. Hash: {data?.hash}</p> }
-      { !isSuccess && <p>Transaction failed.</p>}
+      {(isPrepareError || isError) && (<p>Error: {(prepareError || error)?.message}</p>)}
     </div>
   );
 }
 
-function BurnTokens(){
+function BurnTokens() {
   const [amount, setAmount] = useState<string>('0');
 
   const { data, isLoading, isSuccess, write } = useContractWrite({
@@ -320,8 +352,8 @@ function BurnTokens(){
   return (
     <div>
       <h3>Return tokens to account</h3>
-      <p>Number of tokens to burn: <input type="text" value={ethers.utils.parseUnits(amount)} onChange={(e) => setAmount(e.target.value)}/></p>
-      <button onClick={() => write?.({args: [amount]})} disabled={isLoading}>Burn Tokens</button>
+      <p>Number of tokens to burn: <input type="text" value={amount} onChange={(e) => setAmount(e.target.value)}/></p>
+      <button onClick={() => write?.({args: [ethers.utils.parseUnits(amount)]})} disabled={isLoading}>Burn Tokens</button>
       { isSuccess && <p>Transaction complete. Hash: {data?.hash}</p> }
       { !isSuccess && <p>Transaction failed.</p>}
     </div>
