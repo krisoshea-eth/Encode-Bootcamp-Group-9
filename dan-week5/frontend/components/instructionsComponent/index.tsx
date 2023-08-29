@@ -146,7 +146,7 @@ function CloseLottery() {
     address: LOTTERY_CONTRACT_ADDRESS,
     abi: Lottery.abi,
     functionName: 'closeLottery',
-    enabled: false,
+    enabled: true,
   });
 
   const { data, error, isError, write } = useContractWrite(config);
@@ -246,7 +246,7 @@ function Bet() {
     address: LOTTERY_CONTRACT_ADDRESS,
     abi: Lottery.abi,
     functionName: 'betMany',
-    args: [ethers.utils.parseEther(debouncedAmount).toBigInt() || 0],
+    args: [BigInt(debouncedAmount)],
     enabled: Boolean(debouncedAmount),
   });
 
@@ -262,7 +262,7 @@ function Bet() {
 
   return (
     <div>
-      <p>Number of bets to place: <input type="text" value={amount} onChange={(e) => setAmount(e.target.value)}/></p>
+      <p>Number of bets to place: <input type="number" min="0" step="1" value={amount} onChange={(e) => setAmount(e.target.value)}/></p>
       <button onClick={() => write?.()} disabled={isLoading}>Bet</button>
       { isSuccess && <p>Transaction complete. Hash: {data?.hash}</p> }
       {isError && (<p>Error: {(prepareError || error)?.message}</p>)}
