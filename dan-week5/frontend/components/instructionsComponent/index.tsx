@@ -46,6 +46,8 @@ export default function InstructionsComponent() {
         <h3>Your Prize</h3>
         <CheckPrize />
         <ClaimPrize />
+        <h3>Your Tokens</h3>
+        <BurnTokens/>
       </div>
     </div>
   );
@@ -296,6 +298,30 @@ function ClaimPrize() {
       <h3>Withdraw Your Prize</h3>
       <p>Amount: <input type="text" value={amount} onChange={(e) => setAmount(e.target.value)}/></p>
       <button onClick={() => write?.({args: [ethers.utils.parseUnits(amount)]})} disabled={isLoading}>Claim</button>
+      { isSuccess && <p>Transaction complete. Hash: {data?.hash}</p> }
+      { !isSuccess && <p>Transaction failed.</p>}
+    </div>
+  );
+}
+
+function BurnTokens(){
+  const [amount, setAmount] = useState<string>('0');
+
+  const { data, isLoading, isSuccess, write } = useContractWrite({
+    address: LOTTERY_CONTRACT_ADDRESS,
+    abi: Lottery.abi,
+    functionName: 'returnTokens',
+  });
+
+  if (isLoading) {
+    return <p>Waiting for transaction to complete...</p>
+  }
+
+  return (
+    <div>
+      <h3>Return tokens to account</h3>
+      <p>Number of tokens to burn: <input type="text" value={ethers.utils.parseUnits(amount)} onChange={(e) => setAmount(e.target.value)}/></p>
+      <button onClick={() => write?.({args: [amount]})} disabled={isLoading}>Burn Tokens</button>
       { isSuccess && <p>Transaction complete. Hash: {data?.hash}</p> }
       { !isSuccess && <p>Transaction failed.</p>}
     </div>
