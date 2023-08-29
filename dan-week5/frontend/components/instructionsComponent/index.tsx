@@ -146,7 +146,6 @@ function CloseLottery() {
     address: LOTTERY_CONTRACT_ADDRESS,
     abi: Lottery.abi,
     functionName: 'closeLottery',
-    enabled: false,
   });
 
   const { data, error, isError, write } = useContractWrite(config);
