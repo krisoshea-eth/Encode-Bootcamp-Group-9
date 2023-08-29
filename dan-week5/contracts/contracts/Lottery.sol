@@ -67,7 +67,8 @@ contract Lottery is Ownable {
     }
 
     /// @notice Opens the lottery for receiving bets
-    function openBets(uint256 closingTime) external onlyOwner whenBetsClosed {
+    function openBets(uint256 duration) external onlyOwner whenBetsClosed {
+        uint256 closingTime = block.timestamp + duration;
         require(
             closingTime > block.timestamp,
             "Closing time must be in the future"
