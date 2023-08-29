@@ -16,8 +16,8 @@ import * as LotteryToken from "../../assets/abi/LotteryToken.json";
 
 import styles from "./instructionsComponent.module.css";
 
-const LOTTERY_CONTRACT_ADDRESS = '0x7Ba6f6D57ce440e5Bc477240Ad99A4D4CA864CA1';
-const TOKEN_CONTRACT_ADDRESS = '0x900e5804B21Ebcab28F71E06A4bc501EA49c389D';
+const LOTTERY_CONTRACT_ADDRESS = '0x5d799947386F6dc71b06d69797FF7F82325cFAF3';
+const TOKEN_CONTRACT_ADDRESS = '0x0A16Cfc2adbBb0bdE2BDb3ca371A612bF431A9E1';
 
 export default function InstructionsComponent() {
   return (
