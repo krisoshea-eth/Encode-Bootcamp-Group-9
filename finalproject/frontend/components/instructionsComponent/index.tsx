@@ -15,8 +15,8 @@ import {
   utils,
 } from "ethers";
 
-import * as ERC20Votes from "../../assets/ERC20Votes.json";
-import * as TokenizedBallot from "../../assets/TokenizedBallot.json";
+import * as ERC20Votes from "../../../smartcontracts/artifacts/contracts/ERC20Votes.sol/MyToken.json";
+import * as TokenizedBallot from "../../../smartcontracts/artifacts/contracts/TokenizedBallot.sol/TokenizedBallot.json";
 
 import styles from "./instructionsComponent.module.css";
 
