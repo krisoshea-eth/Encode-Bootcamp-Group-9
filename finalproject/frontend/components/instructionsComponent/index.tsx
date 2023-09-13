@@ -11,55 +11,36 @@ import {
 } from "wagmi";
 
 import {
-  ethers,
   utils,
 } from "ethers";
 
 import * as ERC20Votes from "../../../smartcontracts/artifacts/contracts/ERC20Votes.sol/MyToken.json";
 import * as TokenizedBallot from "../../../smartcontracts/artifacts/contracts/TokenizedBallot.sol/TokenizedBallot.json";
 
-import styles from "./instructionsComponent.module.css";
-
-const ERC20_CONTRACT_ADDRESS="0xb78ea56431102C43BEa7cD373C986ce2145282f3";
+import "./index.css";
 
 const TOKENIZED_BALLOT_ADDRESS="0x868df35d41A82De3D9d4c0014d11Af1df4CEe880";
 
 export default function InstructionsComponent() {
-  return (
-    <div className={styles.container}>
-      <header className={styles.header_container}>
-        <div className={styles.header}>
-          <h1>Tokenized Ballot Voting App</h1>
-        </div>
-      </header>
-      <div className={styles.get_started}>
-        <PageBody></PageBody>
-      </div>
-    </div>
-  );
-}
-
-function PageBody() {
     return (
-      <div>
-        <h2>Wallet Info</h2>
-        <WalletInfo></WalletInfo>
-        <h2>Get ERC20 Votes Contract Address (from backend)</h2>
-        <TokenAddressFromAPI></TokenAddressFromAPI>
-        <h2>Get Total Supply (from backend)</h2>
-        <GetTotalSupply />
-        <h2>Get Total Supply (from frontend)</h2>
-        <GetTotalSupplyFE />
-        <h2>Mint Tokens (from backend)</h2>
-        <MintTokens />
-        <h2>Delegate</h2>
-        <Delegate/>
-        <h2>Voting Power</h2>
-        <GetVotingPower/>
-        <h2>Vote</h2>
-        <Vote/>
-        <h2>Get the Winner</h2>
-        <GetWinner/>
+      <div className={"Main-Content"}>
+
+        <div className={"Card"}>
+          <h2>Your Wallet</h2>
+          <WalletInfo></WalletInfo>
+        </div>
+        
+        <div className={"Card"}>
+          <TokenContractPane/>
+        </div>
+
+        <div className={"Card"}>
+          <h2>Vote</h2>
+          <Vote/>
+          <h2>Get the Winner</h2>
+          <GetWinner/>
+        </div>
+
       </div>
     );
 }
@@ -70,10 +51,11 @@ function WalletInfo() {
   if (address)
     return (
       <div>
-        <p>Your wallet address: {address}</p>
-        <p>Connected to network: {chain?.name}</p>
+        <p>Address: {address}</p>
+        <p>Network: {chain?.name}</p>
         {/* <WalletAction></WalletAction> */}
         <WalletBalance address={address}></WalletBalance>
+        <GetVotingPower/>
       </div>
     );
   if (isConnecting)
@@ -127,19 +109,35 @@ function WalletAction() {
   );
 }
 
-function GetTotalSupplyFE() {
-  const { data, isError, isLoading } = useContractRead({
-    address: ERC20_CONTRACT_ADDRESS,
+interface GetTotalSupplyProps {
+  address: `0x${string}`;
+}
+
+function GetTotalSupplyFE(props: GetTotalSupplyProps) {
+  const [ totalSupply, setTotalSupply ] = useState<string>('');
+
+  const { isError, isLoading, refetch } = useContractRead({
+    address: props.address,
     abi: ERC20Votes.abi,
     functionName: 'totalSupply',
+    onSuccess(data) {
+      setTotalSupply((data as BigInt).toString());
+    }
   });
 
-  if (isLoading) return <p>Loading...</p>;
-  if (isError) return <p>Error fetching total supply</p>;
-
-  const totalSupply = (data as BigInt).toString(); 
-
-  return (<p>Total Supply: {totalSupply}</p>);
+  return (
+    <div>
+      <p>
+        Total Supply: 
+        {
+          isLoading ? <span>Loading... </span> : 
+          isError   ? <span>Error occured! </span> :
+                      <span>{totalSupply} </span>
+        }
+        <button onClick={() => refetch()} disabled={isLoading}>Refresh</button>
+      </p>
+    </div>
+  );
 }
 
 function WalletBalance(params: { address: `0x${string}` }) {
@@ -149,10 +147,23 @@ function WalletBalance(params: { address: `0x${string}` }) {
 
   if (isLoading) return <div>Fetching balance…</div>;
   if (isError) return <div>Error fetching balance</div>;
+
+  return <p>Balance: {data?.formatted} {data?.symbol}</p>;
+}
+
+function TokenContractPane() {
+  const [tokenContractAddress, setTokenContractAddress] = useState<`0x${string}`>('0xDEADF00D');
+
   return (
-    <div>
-      Balance: {data?.formatted} {data?.symbol}
-    </div>
+    <>
+      <h2>Token Contract</h2>
+      <TokenAddressFromAPI address={tokenContractAddress} setAddress={setTokenContractAddress} />
+      <GetTotalSupplyFE address={tokenContractAddress}/>
+      <h2>Mint New Tokens</h2>
+      <MintTokens />
+      <h2>Delegate</h2>
+      <Delegate address={tokenContractAddress}/>
+    </>
   );
 }
 
@@ -177,7 +188,7 @@ function GetTotalSupply() {
   };
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return <div><p>Loading...</p></div>;
   }
 
   if (!data) {
@@ -192,25 +203,31 @@ function GetTotalSupply() {
   );
 }
 
-function TokenAddressFromAPI() {
-  const [data, setData] = useState<any>(null);
+interface TokenAddressFromAPIProps {
+  address: `0x${string}`;
+  setAddress: (address: `0x${string}`) => void;
+}
+
+function TokenAddressFromAPI(props: TokenAddressFromAPIProps) {
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch("http://localhost:3001/get-address")
       .then((res) => res.json())
       .then((data) => {
-        setData(data);
+        props.setAddress(data.address);
         setLoading(false);
       });
   }, []);
 
-  if (isLoading) return <p>Loading...</p>;
-  if (!data) return (<button disabled={isLoading} onClick={() => {}}>No profile data</button>);
-
   return (
     <div>
-      <p>Address: {data.address}</p>
+      {
+        isLoading      ? <p>Loading...</p> :
+        !props.address ? <p>No data</p> :
+                         <p>Address: {props.address}</p>
+      }
+      {/* <button disabled={isLoading} onClick={() => {}}>No profile data</button> */}
     </div>
   );
 }
@@ -296,11 +313,15 @@ function MintTokens() {
   )
 }
 
-function Delegate() {
+interface DelegateProps {
+  address: string;
+};
+
+function Delegate(props: DelegateProps) {
   const [address, setAddress] = useState<string>('');
 
   const { config } = usePrepareContractWrite({
-    address: ERC20_CONTRACT_ADDRESS,
+    address: `0x${props.address}`,
     abi: ERC20Votes.abi,
     functionName: 'delegate',
     args: [address],
@@ -334,28 +355,22 @@ function Delegate() {
 function GetVotingPower() {
   const { address } = useAccount();
 
-    const { data, isError, isLoading } = useContractRead({
-      address: TOKENIZED_BALLOT_ADDRESS,
-      abi: TokenizedBallot.abi,
-      functionName: 'votingPower',
-      args: [address],
-      onError(error){
-        console.log(error)
-    }
-    });
+  const { data, isError, isLoading } = useContractRead({
+    address: TOKENIZED_BALLOT_ADDRESS,
+    abi: TokenizedBallot.abi,
+    functionName: 'votingPower',
+    args: [address],
+    onError(error){
+      console.log(error)
+  }
+  });
 
-    if (isLoading) return <p>Loading...</p>;
-    if (isError) return <p>Error fetching voting power</p>;
+  if (isLoading) return <p>Loading...</p>;
+  if (isError) return <p>Error fetching voting power</p>;
 
-    console.log('voting power 2', data);
+  const votingPower = (data as BigInt).toString(); 
 
-    const votingPower = (data as BigInt).toString(); 
-
-    return (
-      <div>
-        <p>Your voting Power: {votingPower}</p>
-      </div>
-    );
+  return <p>Voting Power: {votingPower}</p>;
 }
 
 function Vote() {
