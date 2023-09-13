@@ -10,10 +10,7 @@ import {
   useWaitForTransaction,
 } from "wagmi";
 
-import {
-  ethers,
-  utils,
-} from "ethers";
+import { ethers, utils } from "ethers";
 
 import * as ERC20Votes from "../../assets/ERC20Votes.json";
 import * as TokenizedBallot from "../../assets/TokenizedBallot.json";
