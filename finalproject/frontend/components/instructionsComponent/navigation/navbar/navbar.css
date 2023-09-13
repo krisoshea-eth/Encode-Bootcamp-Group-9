@@ -1,0 +1,15 @@
+nav {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	height: 3rem;
+	width: 100%;
+	padding: 1em;
+	border-bottom: 2px solid lightgrey;
+}
+
+.navbar h1 {
+	font-size: 2rem;
+	line-height: 3rem;
+	padding: 1rem;
+}
