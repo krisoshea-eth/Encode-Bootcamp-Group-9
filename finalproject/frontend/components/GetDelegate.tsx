@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from 'react';
 import {useContractRead} from "wagmi";
 
 import * as ERC20Votes from "../../smartcontracts/artifacts/contracts/ERC20Votes.sol/MyToken.json";

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from 'react';
 import {useContractRead} from "wagmi";
 import {utils} from "ethers";
 
