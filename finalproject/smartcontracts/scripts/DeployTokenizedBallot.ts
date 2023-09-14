@@ -11,7 +11,7 @@ const PROPOSAL_NAMES = [
   "Cookie Dough",         // 4
 ];
 
-const MY_ERC20_TOKEN_ADDRESS = "0x107C307308dF4C064A379cfC8E447c5fb5E700E3";
+const MY_ERC20_TOKEN_ADDRESS = "0x94a5bAfc04e42da3A98fc9c27bDf0483012cA698";
 
 async function main() {
   console.log("Deploying TokenizedBallot contract...");

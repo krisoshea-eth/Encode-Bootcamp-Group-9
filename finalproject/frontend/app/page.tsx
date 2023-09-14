@@ -1,5 +1,5 @@
 'use client'
-import InstructionsComponent from "@/components/instructionsComponent";
+import InstructionsComponent from "@/components";
 import styles from "./page.module.css";
 import "./globals.css";
 
