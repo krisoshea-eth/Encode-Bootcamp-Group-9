@@ -40,4 +40,14 @@ contract MyToken is ERC20, AccessControl, ERC20Permit, ERC20Votes {
     {
         super._burn(account, amount);
     }
+
+    /**
+     * @dev uses already existing delegate function in ERC20Votes 
+     *      contract to 'revoke' 
+     * @param oldDelegatee address of account previously delegated to
+     */
+    function revokeDelegation(address oldDelegatee) public virtual{
+        address account = _msgSender();
+        _delegate(oldDelegatee, account);
+    }
 }
